@@ -119,10 +119,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
     </div>
     <div id="cContent" style="display:none">
       <div class="sgrid" id="sumCards"></div>
-      <div class="fbar">
+      <div class="fbar" id="filterBar1">
         <button class="chip on" onclick="setF('all',this)">All sessions</button>
         <button class="chip" onclick="setF('taught',this)">Taught ✅</button>
         <button class="chip" onclick="setF('untaught',this)">Not yet taught</button>
+      </div>
+      <div class="fbar" id="filterBar2" style="margin-bottom:14px">
+        <button class="chip on" onclick="setYL('all',this)">All year levels</button>
+        <button class="chip" onclick="setYL('Year 2',this)">Year 2</button>
+        <button class="chip" onclick="setYL('Year 3',this)">Year 3</button>
+        <button class="chip" onclick="setYL('Year 4',this)">Year 4</button>
       </div>
       <div id="sGrid"></div>
     </div>
@@ -141,11 +147,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
 const TOK='patsRmcX3QGS1g9sL.e163615740f3f6fddf85c9ea3022ccb32c7f050122240a27eaf24c5316641f48';
 const BASE='appC4EUs5N4gz6LjE';
 const TBL='tblwwoUTac1wX4ABl';
-const F={strand:'NZC Strand',level:'NZC Level/ Phase',week:'Week',li:'Learning Intention',taught:'✅ Taught'};
+const F={strand:'NZC Strand',level:'NZC Level/ Phase',week:'Week',li:'Learning Intention',taught:'✅ Taught',yearLevel:'Year Level',sessionName:'Session Name'};
 const COLS={'Number & Algebra':'#B8600A','Writing \u2013 Informative':'#1D9E75','Writing \u2013 Persuasive':'#0F6E56','Writing \u2013 Reflective':'#085041','Reading':'#1A7BC4','Reading \u2013 Phonics & Decoding':'#0C4A7A','Learning Languages \u2013 Te Reo M\u0101ori':'#5A3A8A','Social Sciences \u2013 Place & Environment':'#C0392B','Science \u2013 Living World':'#3A7A2A','Health Education':'#8A1A1A','Physical Education':'#A0204A','The Arts \u2013 Music':'#5A5A5A','The Arts \u2013 Visual Arts':'#3A3A3A','Technology \u2013 Design, Make & Innovate':'#0C2340'};
 const LC={'Level 1':'tg1','Level 1\u20132':'tg12','Level 2':'tg2','Level 2\u20133':'tg23'};
 const WKS=['Week 1','Week 2','Week 3','Week 4','Week 5'];
-let recs=[],filt='all',selWk='Week 1',saving=new Set();
+let recs=[],filt='all',ylFilt='all',selWk='Week 1',saving=new Set();
 
 function setSt(s){
   const d=document.getElementById('sDot'),t=document.getElementById('sTxt');
@@ -203,7 +209,8 @@ async function loadData(){
 }
 
 function renderSum(){
-  const tot=recs.length,tgt=recs.filter(r=>r.taught).length,str=new Set(recs.map(r=>r.strand)).size,pct=tot?Math.round(tgt/tot*100):0;
+  const ylR=ylFilt==='all'?recs:recs.filter(r=>r.yearLevel===ylFilt);
+  const tot=ylR.length,tgt=ylR.filter(r=>r.taught).length,str=new Set(ylR.map(r=>r.strand)).size,pct=tot?Math.round(tgt/tot*100):0;
   document.getElementById('sumCards').innerHTML=`
     <div class="sc w"><div class="scn">${str}</div><div class="scl">NZC strands</div></div>
     <div class="sc t"><div class="scn">${tgt}</div><div class="scl">Sessions taught</div></div>
@@ -214,8 +221,9 @@ function renderSum(){
 function grp(arr){const g={};arr.forEach(r=>{if(!g[r.strand])g[r.strand]=[];g[r.strand].push(r);});return g;}
 
 function renderCov(){
-  const src=filt==='taught'?recs.filter(r=>r.taught):filt==='untaught'?recs.filter(r=>!r.taught):recs;
-  const groups=grp(filt==='all'?recs:src);
+  const ylRecs=ylFilt==='all'?recs:recs.filter(r=>r.yearLevel===ylFilt);
+  const src=filt==='taught'?ylRecs.filter(r=>r.taught):filt==='untaught'?ylRecs.filter(r=>!r.taught):ylRecs;
+  const groups=grp(filt==='all'?ylRecs:src);
   let html='';
   Object.entries(groups).forEach(([strand,sess])=>{
     const shown=filt==='all'?sess:sess.filter(r=>filt==='taught'?r.taught:!r.taught);
@@ -229,11 +237,12 @@ function renderCov(){
       return`<div class="wd ${c}">${wt}/${ws.length}</div>`;
     }).join('');
     const rows=shown.map(r=>{
+      const ylTag=r.yearLevel&&r.yearLevel!=='Y2–4 (whole class)'?`<span class="tag" style="background:#f1f0ff;color:#3c3489;font-size:10px;padding:2px 6px;border-radius:4px">${r.yearLevel}</span>`:'';
       const lc=LC[r.level]||'tg12',wk=r.week?`<span class="tag tgw">${r.week}</span>`:'';
       return`<div class="sr ${r.taught?'tg':''}" id="sr_${r.id}">
         <div class="cb ${r.taught?'on':''}" id="cb_${r.id}" onclick="tog('${r.id}')"></div>
         <div class="si"><div class="sli ${r.taught?'done':''}">${r.li}</div>
-        <div class="stags">${wk}${r.level?`<span class="tag ${lc}">${r.level}</span>`:''}</div></div>
+        <div class="stags">${wk}${r.level?`<span class="tag ${lc}">${r.level}</span>`:''} ${ylTag}</div></div>
       </div>`;
     }).join('');
     html+=`<div class="sg" id="${gid}">
@@ -279,7 +288,8 @@ function renderWkBtns(){
 function pickWk(w,btn){selWk=w;document.querySelectorAll('.wb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderWk();}
 
 function renderWk(){
-  const sess=recs.filter(r=>r.week===selWk);
+  const ylR=ylFilt==='all'?recs:recs.filter(r=>r.yearLevel===ylFilt);
+  const sess=ylR.filter(r=>r.week===selWk);
   if(!sess.length){document.getElementById('wContent').innerHTML='<div class="empty">No sessions for this week.</div>';return;}
   const tc=sess.filter(r=>r.taught).length,groups=grp(sess);
   let html=`<div class="sgrid" style="margin-bottom:14px">
@@ -299,13 +309,14 @@ function renderWk(){
 async function togWk(id){await tog(id);renderWk();renderCov();renderRep();}
 
 function renderRep(){
-  const taught=recs.filter(r=>r.taught);
+  const ylR=ylFilt==='all'?recs:recs.filter(r=>r.yearLevel===ylFilt);
+  const taught=ylR.filter(r=>r.taught);
   if(!taught.length){document.getElementById('rContent').innerHTML='<div class="empty" style="padding:60px 0">Nothing ticked yet.<br><span style="font-size:11px">Tap checkboxes in Coverage or By Week.</span></div>';return;}
   const groups=grp(taught);
   let html=`<div class="rb"><div class="rh">Coverage summary — Term 2</div><table class="rt"><thead><tr><th>Strand</th><th>Sessions</th><th>Level</th><th>Weeks</th></tr></thead><tbody>`;
   Object.entries(groups).forEach(([s,arr])=>{
-    const col=COLS[s]||'#888',levels=[...new Set(arr.map(r=>r.level).filter(Boolean))].join(', '),wks=[...new Set(arr.map(r=>r.week).filter(Boolean))].sort().join(', ');
-    html+=`<tr><td><span class="rbdg" style="background:${col}"></span>${s}</td><td>${arr.length}</td><td>${levels||'—'}</td><td>${wks||'—'}</td></tr>`;
+    const col=COLS[s]||'#888',yls=[...new Set(arr.map(r=>r.yearLevel).filter(Boolean))].join(', '),wks=[...new Set(arr.map(r=>r.week).filter(Boolean))].sort().join(', ');
+    html+=`<tr><td><span class="rbdg" style="background:${col}"></span>${s}</td><td>${yls||'—'}</td><td>${arr.length}</td><td>${wks||'—'}</td></tr>`;
   });
   html+=`</tbody></table></div>`;
   WKS.forEach(w=>{
@@ -323,7 +334,8 @@ function tab(id,btn){
   document.getElementById('view-'+id)?.classList.add('on');btn.classList.add('on');
   if(id==='byweek')renderWk();if(id==='report')renderRep();
 }
-function setF(f,btn){filt=f;document.querySelectorAll('.chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderCov();}
+function setF(f,btn){filt=f;document.querySelectorAll('#filterBar1 .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderCov();}
+function setYL(yl,btn){ylFilt=yl;document.querySelectorAll('#filterBar2 .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderCov();renderWk();}
 let tt;function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200);}
 
 loadData();
