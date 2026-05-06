@@ -335,7 +335,7 @@ function tab(id,btn){
   if(id==='byweek')renderWk();if(id==='report')renderRep();
 }
 function setF(f,btn){filt=f;document.querySelectorAll('#filterBar1 .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderCov();}
-function setYL(yl,btn){ylFilt=yl;document.querySelectorAll('#filterBar2 .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderCov();renderWk();}
+function setYL(yl,btn){ylFilt=yl;document.querySelectorAll('#filterBar2 .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderSum();renderCov();renderWk();renderRep();}
 let tt;function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200);}
 
 loadData();
