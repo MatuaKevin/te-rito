@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0C2340">
+<title>Te Rito – NZC Coverage</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0C2340;--ink-mid:#2A4A6B;--ink-soft:#5A7A9A;--ink-ghost:#B8CCE0;--paper:#F4F0E8;--pw:#EDE8DC;--wai:#1A7BC4;--wl:#D6EAF8;--wd:#0C4A7A;--teal:#0D7A5F;--tl:#D0EDE7;--amb:#B8600A;--al:#FAE8D0;--cor:#C0392B;--gl:#F5EAC0;--gd:#8A6A00;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100dvh;}
+.hdr{background:var(--ink);color:white;padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.hl{display:flex;align-items:center;gap:10px;}
+.hlogo{width:32px;height:32px;background:var(--wai);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:15px;color:white;font-style:italic;}
+.htitle{font-family:'DM Serif Display',serif;font-size:17px;font-style:italic;}
+.hsub{font-size:10px;color:var(--ink-ghost);letter-spacing:0.5px;text-transform:uppercase;}
+.sbadge{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink-ghost);}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--ink-ghost);}
+.sdot.live{background:#2ecc71;animation:pulse 2s infinite;}
+.sdot.err{background:#e74c3c;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.nav{background:var(--ink);display:flex;gap:4px;padding:0 18px 12px;}
+.ntab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;color:var(--ink-ghost);cursor:pointer;border:none;background:transparent;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.ntab.on{background:var(--wai);color:white;}
+.main{padding:18px;max-width:860px;width:100%;margin:0 auto;}
+.spin{width:32px;height:32px;border:3px solid var(--ink-ghost);border-top-color:var(--wai);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lwrap{text-align:center;padding:60px 0;}
+.ltxt{font-size:13px;color:var(--ink-soft);}
+.ewrap{background:white;border-radius:14px;padding:24px;box-shadow:0 1px 4px rgba(12,35,64,0.08);}
+.etitle{font-size:15px;font-weight:600;color:var(--cor);margin-bottom:8px;}
+.ebody{font-size:13px;color:var(--ink-mid);line-height:1.6;}
+.edebug{margin-top:12px;background:#f8f4f0;border-radius:8px;padding:10px 12px;font-size:11px;font-family:monospace;color:var(--ink-soft);white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;}
+.rbtn{padding:9px 20px;background:var(--wai);color:white;border:none;border-radius:20px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:14px;}
+.sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px;}
+.sc{background:white;border-radius:12px;padding:14px 16px;border-top:3px solid var(--ink-ghost);box-shadow:0 1px 4px rgba(12,35,64,0.07);}
+.sc.w{border-top-color:var(--wai);}.sc.t{border-top-color:var(--teal);}.sc.a{border-top-color:var(--amb);}.sc.c{border-top-color:var(--cor);}
+.scn{font-size:26px;font-weight:600;line-height:1;margin-bottom:3px;}
+.scl{font-size:11px;color:var(--ink-soft);}
+.fbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.chip{padding:5px 12px;border-radius:20px;border:1px solid var(--ink-ghost);background:white;font-size:12px;color:var(--ink-mid);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.chip.on{background:var(--ink);color:white;border-color:var(--ink);}
+.sg{background:white;border-radius:12px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 4px rgba(12,35,64,0.07);}
+.sh{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;transition:background 0.15s;user-select:none;}
+.sh:hover{background:#f8f5f0;}
+.sdot2{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+.sn{font-size:13px;font-weight:600;color:var(--ink);flex:1;line-height:1.3;}
+.sm{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.wds{display:flex;gap:3px;}
+.wd{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;}
+.wda{background:var(--tl);color:var(--teal);}.wds2{background:var(--al);color:var(--amb);}.wdn{background:var(--pw);color:var(--ink-soft);}.wde{background:transparent;color:transparent;}
+.pw{display:flex;align-items:center;gap:5px;}
+.pb{width:44px;height:4px;background:var(--pw);border-radius:2px;overflow:hidden;}
+.pf{height:100%;background:var(--teal);border-radius:2px;transition:width 0.3s;}
+.pt{font-size:11px;color:var(--ink-soft);min-width:26px;text-align:right;}
+.chev{font-size:11px;color:var(--ink-ghost);transition:transform 0.2s;flex-shrink:0;}
+.sg.open .chev{transform:rotate(90deg);}
+.sl{display:none;border-top:1px solid rgba(12,35,64,0.05);}
+.sg.open .sl{display:block;}
+.sr{display:flex;align-items:flex-start;gap:10px;padding:10px 14px 10px 34px;border-bottom:1px solid rgba(12,35,64,0.04);transition:background 0.1s;}
+.sr:last-child{border-bottom:none;}
+.sr:hover{background:var(--paper);}
+.sr.tg{background:#f0faf5;}
+.cb{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--ink-ghost);background:white;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.cb.on{background:var(--teal);border-color:var(--teal);}
+.cb.on::after{content:'✓';color:white;font-size:11px;font-weight:700;}
+.si{flex:1;min-width:0;}
+.sli{font-size:12px;color:var(--ink);line-height:1.4;margin-bottom:3px;}
+.sli.done{color:var(--teal);}
+.stags{display:flex;gap:5px;flex-wrap:wrap;}
+.tag{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500;}
+.tgw{background:var(--pw);color:var(--ink-soft);}
+.tg1{background:var(--tl);color:#085041;}
+.tg12{background:var(--wl);color:var(--wd);}
+.tg2{background:var(--al);color:#633806;}
+.tg23{background:var(--gl);color:var(--gd);}
+.view{display:none;}
+.view.on{display:block;}
+.wrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.wb{padding:6px 14px;border-radius:20px;border:1px solid var(--ink-ghost);background:white;font-size:12px;color:var(--ink-mid);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:all 0.15s;}
+.wb.on{background:var(--ink);color:white;border-color:var(--ink);}
+.empty{text-align:center;padding:40px 0;font-size:13px;color:var(--ink-soft);font-style:italic;}
+.rb{background:white;border-radius:12px;padding:18px;margin-bottom:12px;box-shadow:0 1px 4px rgba(12,35,64,0.07);}
+.rh{font-family:'DM Serif Display',serif;font-size:15px;color:var(--ink);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--ink-ghost);}
+.rt{width:100%;border-collapse:collapse;font-size:12px;}
+.rt th{text-align:left;padding:7px 8px;background:var(--pw);color:var(--ink-soft);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;border-bottom:1px solid var(--ink-ghost);}
+.rt td{padding:8px;border-bottom:1px solid rgba(12,35,64,0.04);color:var(--ink);line-height:1.4;vertical-align:top;}
+.rt tr:last-child td{border-bottom:none;}
+.rbdg{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--ink);color:white;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:500;transition:transform 0.25s;z-index:999;white-space:nowrap;box-shadow:0 4px 16px rgba(12,35,64,0.2);}
+#toast.on{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hl">
+    <div class="hlogo">TR</div>
+    <div><div class="htitle">Te Rito</div><div class="hsub">Ko te Wai · Term 2</div></div>
+  </div>
+  <div class="sbadge"><div class="sdot" id="sDot"></div><span id="sTxt">Loading…</span></div>
+</div>
+<nav class="nav">
+  <button class="ntab on" onclick="tab('coverage',this)">Coverage</button>
+  <button class="ntab" onclick="tab('byweek',this)">By week</button>
+  <button class="ntab" onclick="tab('report',this)">Report</button>
+</nav>
+<div class="main">
+  <div class="view on" id="view-coverage">
+    <div class="lwrap" id="lWrap"><div class="spin"></div><div class="ltxt">Fetching from Airtable…</div></div>
+    <div id="eWrap" style="display:none">
+      <div class="ewrap">
+        <div class="etitle">Could not load data</div>
+        <div class="ebody" id="eBody"></div>
+        <div class="edebug" id="eDebug"></div>
+        <button class="rbtn" onclick="loadData()">Retry</button>
+      </div>
+    </div>
+    <div id="cContent" style="display:none">
+      <div class="sgrid" id="sumCards"></div>
+      <div class="fbar">
+        <button class="chip on" onclick="setF('all',this)">All sessions</button>
+        <button class="chip" onclick="setF('taught',this)">Taught ✅</button>
+        <button class="chip" onclick="setF('untaught',this)">Not yet taught</button>
+      </div>
+      <div id="sGrid"></div>
+    </div>
+  </div>
+  <div class="view" id="view-byweek">
+    <div class="wrow" id="wBtns"></div>
+    <div id="wContent"></div>
+  </div>
+  <div class="view" id="view-report">
+    <div id="rContent"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const TOK='patsRmcX3QGS1g9sL.e163615740f3f6fddf85c9ea3022ccb32c7f050122240a27eaf24c5316641f48';
+const BASE='appC4EUs5N4gz6LjE';
+const TBL='tblwwoUTac1wX4ABl';
+const F={strand:'NZC Strand',level:'NZC Level/ Phase',week:'Week',li:'Learning Intention',taught:'✅ Taught'};
+const COLS={'Number & Algebra':'#B8600A','Writing \u2013 Informative':'#1D9E75','Writing \u2013 Persuasive':'#0F6E56','Writing \u2013 Reflective':'#085041','Reading':'#1A7BC4','Reading \u2013 Phonics & Decoding':'#0C4A7A','Learning Languages \u2013 Te Reo M\u0101ori':'#5A3A8A','Social Sciences \u2013 Place & Environment':'#C0392B','Science \u2013 Living World':'#3A7A2A','Health Education':'#8A1A1A','Physical Education':'#A0204A','The Arts \u2013 Music':'#5A5A5A','The Arts \u2013 Visual Arts':'#3A3A3A','Technology \u2013 Design, Make & Innovate':'#0C2340'};
+const LC={'Level 1':'tg1','Level 1\u20132':'tg12','Level 2':'tg2','Level 2\u20133':'tg23'};
+const WKS=['Week 1','Week 2','Week 3','Week 4','Week 5'];
+let recs=[],filt='all',selWk='Week 1',saving=new Set();
+
+function setSt(s){
+  const d=document.getElementById('sDot'),t=document.getElementById('sTxt');
+  if(s==='live'){d.className='sdot live';t.textContent=recs.length+' sessions';}
+  else if(s==='err'){d.className='sdot err';t.textContent='Error';}
+  else{d.className='sdot';t.textContent='Loading\u2026';}
+}
+
+async function loadData(){
+  setSt('loading');
+  document.getElementById('lWrap').style.display='block';
+  document.getElementById('eWrap').style.display='none';
+  document.getElementById('cContent').style.display='none';
+  try{
+    let all=[],off=null;
+    do{
+      let url=`https://api.airtable.com/v0/${BASE}/${TBL}?pageSize=100`;
+      if(off)url+=`&offset=${encodeURIComponent(off)}`;
+      const r=await fetch(url,{headers:{Authorization:'Bearer '+TOK,'Content-Type':'application/json'}});
+      if(!r.ok){const b=await r.text();throw new Error(`HTTP ${r.status}: ${b.slice(0,300)}`);}
+      const d=await r.json();
+      all=all.concat(d.records||[]);
+      off=d.offset||null;
+    }while(off);
+
+    document.getElementById('eDebug').textContent=
+      'Total: '+all.length+'\nFirst keys: '+Object.keys(all[0]?.fields||{}).join(', ')+
+      '\nFirst fields:\n'+JSON.stringify(all[0]?.fields,null,2);
+
+    recs=all.filter(r=>r.fields).map(r=>({
+      id:r.id,
+      strand:r.fields[F.strand]||'',
+      level:r.fields[F.level]?.name||r.fields[F.level]||'',
+      week:r.fields[F.week]?.name||r.fields[F.week]||null,
+      li:r.fields[F.li]||'',
+      taught:!!r.fields[F.taught]
+    })).filter(r=>r.li||r.strand);
+
+    if(!recs.length){
+      document.getElementById('eBody').textContent='Connected but got 0 usable records. Debug info below.';
+      document.getElementById('lWrap').style.display='none';
+      document.getElementById('eWrap').style.display='block';
+      return;
+    }
+    setSt('live');
+    document.getElementById('lWrap').style.display='none';
+    document.getElementById('cContent').style.display='block';
+    renderSum();renderCov();renderWkBtns();renderWk();renderRep();
+  }catch(e){
+    setSt('err');
+    document.getElementById('lWrap').style.display='none';
+    document.getElementById('eWrap').style.display='block';
+    document.getElementById('eBody').textContent=e.message;
+  }
+}
+
+function renderSum(){
+  const tot=recs.length,tgt=recs.filter(r=>r.taught).length,str=new Set(recs.map(r=>r.strand)).size,pct=tot?Math.round(tgt/tot*100):0;
+  document.getElementById('sumCards').innerHTML=`
+    <div class="sc w"><div class="scn">${str}</div><div class="scl">NZC strands</div></div>
+    <div class="sc t"><div class="scn">${tgt}</div><div class="scl">Sessions taught</div></div>
+    <div class="sc a"><div class="scn">${tot-tgt}</div><div class="scl">Still to come</div></div>
+    <div class="sc c"><div class="scn">${pct}%</div><div class="scl">Term progress</div></div>`;
+}
+
+function grp(arr){const g={};arr.forEach(r=>{if(!g[r.strand])g[r.strand]=[];g[r.strand].push(r);});return g;}
+
+function renderCov(){
+  const src=filt==='taught'?recs.filter(r=>r.taught):filt==='untaught'?recs.filter(r=>!r.taught):recs;
+  const groups=grp(filt==='all'?recs:src);
+  let html='';
+  Object.entries(groups).forEach(([strand,sess])=>{
+    const shown=filt==='all'?sess:sess.filter(r=>filt==='taught'?r.taught:!r.taught);
+    if(!shown.length)return;
+    const tc=sess.filter(r=>r.taught).length,pct=Math.round(tc/sess.length*100),col=COLS[strand]||'#888';
+    const gid='g_'+strand.replace(/[^a-z0-9]/gi,'_');
+    const wds=WKS.map(w=>{
+      const ws=sess.filter(s=>s.week===w),wt=ws.filter(s=>s.taught).length;
+      if(!ws.length)return`<div class="wd wde">.</div>`;
+      const c=wt===ws.length?'wda':wt>0?'wds2':'wdn';
+      return`<div class="wd ${c}">${wt}/${ws.length}</div>`;
+    }).join('');
+    const rows=shown.map(r=>{
+      const lc=LC[r.level]||'tg12',wk=r.week?`<span class="tag tgw">${r.week}</span>`:'';
+      return`<div class="sr ${r.taught?'tg':''}" id="sr_${r.id}">
+        <div class="cb ${r.taught?'on':''}" id="cb_${r.id}" onclick="tog('${r.id}')"></div>
+        <div class="si"><div class="sli ${r.taught?'done':''}">${r.li}</div>
+        <div class="stags">${wk}${r.level?`<span class="tag ${lc}">${r.level}</span>`:''}</div></div>
+      </div>`;
+    }).join('');
+    html+=`<div class="sg" id="${gid}">
+      <div class="sh" onclick="togG('${gid}')">
+        <div class="sdot2" style="background:${col}"></div>
+        <div class="sn">${strand}</div>
+        <div class="sm"><div class="wds">${wds}</div>
+        <div class="pw"><div class="pb"><div class="pf" style="width:${pct}%"></div></div>
+        <div class="pt">${tc}/${sess.length}</div></div></div>
+        <div class="chev">&#9654;</div>
+      </div>
+      <div class="sl">${rows}</div>
+    </div>`;
+  });
+  document.getElementById('sGrid').innerHTML=html||'<div class="empty">No sessions match this filter.</div>';
+}
+
+function togG(id){document.getElementById(id)?.classList.toggle('open');}
+
+async function tog(id){
+  if(saving.has(id))return;
+  const r=recs.find(x=>x.id===id);if(!r)return;
+  const nv=!r.taught;r.taught=nv;saving.add(id);
+  const cb=document.getElementById('cb_'+id),sr=document.getElementById('sr_'+id);
+  if(cb)cb.className=`cb ${nv?'on':''}`;
+  if(sr){sr.className=`sr ${nv?'tg':''}`;const li=sr.querySelector('.sli');if(li)li.className=`sli ${nv?'done':''}`;}
+  renderSum();toast(nv?'✅ Marked as taught':'↩ Unmarked');
+  try{
+    const res=await fetch(`https://api.airtable.com/v0/${BASE}/${TBL}/${id}`,{
+      method:'PATCH',
+      headers:{Authorization:'Bearer '+TOK,'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{[F.taught]:nv}})
+    });
+    if(!res.ok)throw new Error('Save failed');
+  }catch(e){r.taught=!nv;toast('⚠️ Could not save');renderCov();}
+  finally{saving.delete(id);}
+}
+
+function renderWkBtns(){
+  document.getElementById('wBtns').innerHTML=WKS.map(w=>`<button class="wb ${w===selWk?'on':''}" onclick="pickWk('${w}',this)">${w}</button>`).join('');
+}
+
+function pickWk(w,btn){selWk=w;document.querySelectorAll('.wb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderWk();}
+
+function renderWk(){
+  const sess=recs.filter(r=>r.week===selWk);
+  if(!sess.length){document.getElementById('wContent').innerHTML='<div class="empty">No sessions for this week.</div>';return;}
+  const tc=sess.filter(r=>r.taught).length,groups=grp(sess);
+  let html=`<div class="sgrid" style="margin-bottom:14px">
+    <div class="sc w"><div class="scn">${sess.length}</div><div class="scl">Planned</div></div>
+    <div class="sc t"><div class="scn">${tc}</div><div class="scl">Taught</div></div>
+    <div class="sc a"><div class="scn">${sess.length-tc}</div><div class="scl">Remaining</div></div>
+    <div class="sc c"><div class="scn">${new Set(sess.map(r=>r.strand)).size}</div><div class="scl">Strands</div></div>
+  </div>`;
+  Object.entries(groups).forEach(([strand,arr])=>{
+    const col=COLS[strand]||'#888',gid='wg_'+strand.replace(/[^a-z0-9]/gi,'_'),wtc=arr.filter(r=>r.taught).length;
+    const rows=arr.map(r=>{const lc=LC[r.level]||'tg12';return`<div class="sr ${r.taught?'tg':''}" id="wsr_${r.id}"><div class="cb ${r.taught?'on':''}" id="wcb_${r.id}" onclick="togWk('${r.id}')"></div><div class="si"><div class="sli ${r.taught?'done':''}">${r.li}</div><div class="stags">${r.level?`<span class="tag ${lc}">${r.level}</span>`:''}</div></div></div>`;}).join('');
+    html+=`<div class="sg" id="${gid}"><div class="sh" onclick="togG('${gid}')"><div class="sdot2" style="background:${col}"></div><div class="sn">${strand}</div><div class="sm"><div class="pw"><div class="pb"><div class="pf" style="width:${Math.round(wtc/arr.length*100)}%"></div></div><div class="pt">${wtc}/${arr.length}</div></div></div><div class="chev">&#9654;</div></div><div class="sl">${rows}</div></div>`;
+  });
+  document.getElementById('wContent').innerHTML=html;
+}
+
+async function togWk(id){await tog(id);renderWk();renderCov();renderRep();}
+
+function renderRep(){
+  const taught=recs.filter(r=>r.taught);
+  if(!taught.length){document.getElementById('rContent').innerHTML='<div class="empty" style="padding:60px 0">Nothing ticked yet.<br><span style="font-size:11px">Tap checkboxes in Coverage or By Week.</span></div>';return;}
+  const groups=grp(taught);
+  let html=`<div class="rb"><div class="rh">Coverage summary — Term 2</div><table class="rt"><thead><tr><th>Strand</th><th>Sessions</th><th>Level</th><th>Weeks</th></tr></thead><tbody>`;
+  Object.entries(groups).forEach(([s,arr])=>{
+    const col=COLS[s]||'#888',levels=[...new Set(arr.map(r=>r.level).filter(Boolean))].join(', '),wks=[...new Set(arr.map(r=>r.week).filter(Boolean))].sort().join(', ');
+    html+=`<tr><td><span class="rbdg" style="background:${col}"></span>${s}</td><td>${arr.length}</td><td>${levels||'—'}</td><td>${wks||'—'}</td></tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  WKS.forEach(w=>{
+    const wr=taught.filter(r=>r.week===w);if(!wr.length)return;
+    html+=`<div class="rb"><div class="rh">${w} — ${wr.length} session${wr.length>1?'s':''}</div><table class="rt"><thead><tr><th>Strand</th><th>Learning intention</th><th>Level</th></tr></thead><tbody>`;
+    wr.forEach(r=>{const col=COLS[r.strand]||'#888',lc=LC[r.level]||'tg12';html+=`<tr><td><span class="rbdg" style="background:${col}"></span>${r.strand}</td><td>${r.li}</td><td><span class="tag ${lc}">${r.level}</span></td></tr>`;});
+    html+=`</tbody></table></div>`;
+  });
+  document.getElementById('rContent').innerHTML=html;
+}
+
+function tab(id,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('view-'+id)?.classList.add('on');btn.classList.add('on');
+  if(id==='byweek')renderWk();if(id==='report')renderRep();
+}
+function setF(f,btn){filt=f;document.querySelectorAll('.chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderCov();}
+let tt;function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200);}
+
+loadData();
+</script>
+</body>
+</html>
