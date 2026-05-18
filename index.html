@@ -91,6 +91,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
 .rbdg{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--ink);color:white;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:500;transition:transform 0.25s;z-index:999;white-space:nowrap;box-shadow:0 4px 16px rgba(12,35,64,0.2);}
 #toast.on{transform:translateX(-50%) translateY(0);}
+.ak-fbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.ak-card{background:white;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(12,35,64,0.07);}
+.ak-card.has-detail{cursor:pointer;transition:box-shadow 0.15s;}
+.ak-card.has-detail:hover{box-shadow:0 3px 10px rgba(12,35,64,0.12);}
+.ak-top{display:flex;align-items:flex-start;gap:8px;}
+.ak-left{flex:1;min-width:0;}
+.ak-name{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.ak-flags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px;}
+.ak-flag{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:600;}
+.ak-flag.iep{background:#fde8e8;color:#b00;}
+.ak-flag.target{background:var(--al);color:#633806;}
+.ak-flag.esol{background:#e8eafd;color:#3c3489;}
+.ak-flag.maori{background:var(--tl);color:#085041;}
+.ak-meta{font-size:11px;color:var(--ink-soft);line-height:1.5;}
+.ak-arrow{font-size:10px;color:var(--ink-ghost);transition:transform 0.2s;flex-shrink:0;margin-top:3px;}
+.ak-card.open .ak-arrow{transform:rotate(90deg);}
+.yr-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--wl);color:var(--wd);font-weight:600;white-space:nowrap;}
+.ak-detail{display:none;margin-top:10px;border-top:1px solid rgba(12,35,64,0.06);padding-top:10px;}
+.ak-card.open .ak-detail{display:block;}
+.ak-dlabel{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-ghost);margin-bottom:4px;}
+.ak-obs{font-size:12px;color:var(--ink-mid);line-height:1.5;background:var(--paper);border-radius:8px;padding:10px;margin-bottom:8px;}
+.ak-focus{font-size:11px;color:var(--ink-soft);line-height:1.4;background:var(--paper);border-radius:8px;padding:10px;}
 .form-card{background:white;border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(12,35,64,0.07);}
 .form-card-title{font-family:'DM Serif Display',serif;font-size:15px;color:var(--ink);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--ink-ghost);}
 .flabel{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-soft);margin-bottom:5px;display:block;}
@@ -128,6 +150,7 @@ textarea.fi{min-height:76px;}
   <button class="ntab" onclick="tab('byweek',this)">By week</button>
   <button class="ntab" onclick="tab('report',this)">Report</button>
   <button class="ntab" onclick="tab('log',this)">Log</button>
+  <button class="ntab" onclick="tab('akonga',this)">Ākonga</button>
 </nav>
 <div class="main">
   <div class="view on" id="view-coverage">
@@ -167,6 +190,9 @@ textarea.fi{min-height:76px;}
     <div id="obsForm"></div>
     <div id="obsList"></div>
   </div>
+  <div class="view" id="view-akonga">
+    <div id="akContent"></div>
+  </div>
 </div>
 <div id="toast"></div>
 
@@ -184,6 +210,7 @@ const SUBJECTS=['📘 Reading','✍ Writing','🔢 Maths','🌿 Inquiry','🗣 T
 const PRIORITIES=['🟢 No follow-up','🟡 Monitor','🔴 Immediate follow-up'];
 let recs=[],filt='all',ylFilt='all',selWk='Week 1',saving=new Set();
 let obsLoaded=false,submitting=false;
+let akongas=[],aFlagFilt='all',aGrpFilt='all',akLoaded=false;
 
 function setSt(s){
   const d=document.getElementById('sDot'),t=document.getElementById('sTxt');
@@ -360,6 +387,85 @@ function renderRep(){
   document.getElementById('rContent').innerHTML=html;
 }
 
+async function loadAkonga(){
+  const el=document.getElementById('akContent');
+  if(!el)return;
+  el.innerHTML='<div class="lwrap"><div class="spin"></div><div class="ltxt">Loading ākonga…</div></div>';
+  try{
+    let all=[],off=null;
+    do{
+      const p=new URLSearchParams({pageSize:'100'});
+      ['Student','Display Name','Year Level','Groups','Reading Group','Reading Level','Māori','ESOL','IEP','Target','Latest Observation Summary','Term Inquiry Focus'].forEach(f=>p.append('fields[]',f));
+      if(off)p.append('offset',off);
+      const r=await fetch(`https://api.airtable.com/v0/${BASE}/${ATBL}?${p}`,{headers:{Authorization:'Bearer '+TOK}});
+      if(!r.ok)throw new Error(`HTTP ${r.status}`);
+      const d=await r.json();
+      all=all.concat(d.records||[]);
+      off=d.offset||null;
+    }while(off);
+    akongas=all.filter(r=>r.fields).map(r=>{
+      const f=r.fields;
+      return{
+        id:r.id,
+        name:(f['Display Name']||f['Student']||'').trim(),
+        yr:f['Year Level']?.name||f['Year Level']||'',
+        group:f['Groups']?.name||f['Groups']||'',
+        rdGroup:f['Reading Group']?.name||f['Reading Group']||'',
+        rdLevel:f['Reading Level']?.name||f['Reading Level']||'',
+        maori:!!f['Māori'],
+        esol:!!f['ESOL'],
+        iep:!!f['IEP'],
+        target:!!f['Target'],
+        obs:(f['Latest Observation Summary']||'').trim(),
+        focus:(f['Term Inquiry Focus']||'').trim()
+      };
+    }).filter(a=>a.name).sort((a,b)=>a.name.localeCompare(b.name));
+    renderAkonga();
+  }catch(e){
+    el.innerHTML=`<div class="ewrap"><div class="etitle">Could not load students</div><div class="ebody">${e.message}</div><button class="rbtn" onclick="akLoaded=false;loadAkonga()">Retry</button></div>`;
+  }
+}
+
+function renderAkonga(){
+  const el=document.getElementById('akContent');
+  if(!el)return;
+  const grps=['all',...[...new Set(akongas.map(a=>a.group).filter(Boolean))].sort()];
+  let filtered=akongas;
+  if(aGrpFilt!=='all')filtered=filtered.filter(a=>a.group===aGrpFilt);
+  if(aFlagFilt==='iep')filtered=filtered.filter(a=>a.iep);
+  else if(aFlagFilt==='target')filtered=filtered.filter(a=>a.target);
+  else if(aFlagFilt==='esol')filtered=filtered.filter(a=>a.esol);
+  else if(aFlagFilt==='maori')filtered=filtered.filter(a=>a.maori);
+  const grpBtns=grps.map(g=>`<button class="chip ${aGrpFilt===g?'on':''}" onclick="akGrp('${g.replace(/'/g,"\\'")}')">${g==='all'?'All groups':g}</button>`).join('');
+  const flagBtns=[['all','All'],['iep','IEP'],['target','Target'],['esol','ESOL'],['maori','Māori']].map(([k,l])=>`<button class="chip ${aFlagFilt===k?'on':''}" onclick="akFlag('${k}')">${l}</button>`).join('');
+  const summary=`<div class="sgrid" style="margin-bottom:14px">
+    <div class="sc w"><div class="scn">${filtered.length}</div><div class="scl">Students</div></div>
+    <div class="sc c"><div class="scn">${filtered.filter(a=>a.iep).length}</div><div class="scl">IEP</div></div>
+    <div class="sc a"><div class="scn">${filtered.filter(a=>a.target).length}</div><div class="scl">Target</div></div>
+    <div class="sc t"><div class="scn">${filtered.filter(a=>a.obs).length}</div><div class="scl">With obs notes</div></div>
+  </div>`;
+  const cards=filtered.map(a=>{
+    const hasDetail=!!(a.obs||a.focus);
+    const flags=[
+      a.iep?'<span class="ak-flag iep">IEP</span>':'',
+      a.target?'<span class="ak-flag target">Target</span>':'',
+      a.esol?'<span class="ak-flag esol">ESOL</span>':'',
+      a.maori?'<span class="ak-flag maori">Māori</span>':''
+    ].filter(Boolean).join('');
+    const meta=[a.rdGroup,a.rdLevel?`Lvl ${a.rdLevel}`:'',a.group].filter(Boolean).join(' · ');
+    const detail=hasDetail?`<div class="ak-detail">
+      ${a.obs?`<div class="ak-dlabel">Latest observation</div><div class="ak-obs">${a.obs.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>`:''}
+      ${a.focus?`<div class="ak-dlabel">Term inquiry focus</div><div class="ak-focus">${a.focus.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>`:''}
+    </div>`:'';
+    return`<div class="ak-card${hasDetail?' has-detail':''}" id="akc_${a.id}"${hasDetail?` onclick="togAk('${a.id}')"`:''}><div class="ak-top"><div class="ak-left"><div class="ak-name">${a.name}</div>${flags?`<div class="ak-flags">${flags}</div>`:''}${meta?`<div class="ak-meta">${meta}</div>`:''}</div><div style="display:flex;align-items:center;gap:6px">${a.yr?`<span class="yr-badge">${a.yr}</span>`:''}${hasDetail?'<div class="ak-arrow">&#9654;</div>':''}</div></div>${detail}</div>`;
+  }).join('');
+  el.innerHTML=summary+`<div class="ak-fbar">${grpBtns}</div><div class="ak-fbar">${flagBtns}</div>`+(filtered.length?cards:'<div class="empty">No students match this filter.</div>');
+}
+
+function togAk(id){document.getElementById('akc_'+id)?.classList.toggle('open');}
+function akFlag(f){aFlagFilt=f;renderAkonga();}
+function akGrp(g){aGrpFilt=g;renderAkonga();}
+
 function tab(id,btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
@@ -367,6 +473,7 @@ function tab(id,btn){
   if(id==='byweek')renderWk();
   if(id==='report')renderRep();
   if(id==='log'&&!obsLoaded){obsLoaded=true;initObsForm();loadStudents();loadRecentObs();}
+  if(id==='akonga'&&!akLoaded){akLoaded=true;loadAkonga();}
 }
 
 function initObsForm(){
