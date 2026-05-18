@@ -91,6 +91,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
 .rbdg{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--ink);color:white;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:500;transition:transform 0.25s;z-index:999;white-space:nowrap;box-shadow:0 4px 16px rgba(12,35,64,0.2);}
 #toast.on{transform:translateX(-50%) translateY(0);}
+.form-card{background:white;border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(12,35,64,0.07);}
+.form-card-title{font-family:'DM Serif Display',serif;font-size:15px;color:var(--ink);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--ink-ghost);}
+.flabel{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-soft);margin-bottom:5px;display:block;}
+.fi{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:white;border:1.5px solid var(--ink-ghost);border-radius:9px;padding:9px 12px;outline:none;transition:border-color 0.15s;resize:vertical;-webkit-appearance:none;appearance:none;}
+.fi:focus{border-color:var(--wai);}
+textarea.fi{min-height:76px;}
+.frow{margin-bottom:14px;}
+.sbtn{width:100%;padding:12px;background:var(--wai);color:white;border:none;border-radius:22px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity 0.15s;margin-top:6px;}
+.sbtn:disabled{opacity:0.45;cursor:not-allowed;}
+.obs-section-title{font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.4px;margin:0 0 10px;}
+.obs-item{background:white;border-radius:12px;padding:14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(12,35,64,0.06);}
+.obs-head{display:flex;align-items:center;gap:7px;margin-bottom:6px;flex-wrap:wrap;}
+.obs-sname{font-size:13px;font-weight:600;color:var(--ink);}
+.obs-subj{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--wl);color:var(--wd);font-weight:500;}
+.obs-pri{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;}
+.obs-pri.green{background:var(--tl);color:#085041;}
+.obs-pri.yellow{background:var(--gl);color:var(--gd);}
+.obs-pri.red{background:#fde8e8;color:#a00;}
+.obs-txt{font-size:12px;color:var(--ink-mid);line-height:1.5;margin-bottom:4px;}
+.obs-nxt{font-size:11px;color:var(--ink-soft);font-style:italic;margin-bottom:4px;}
+.obs-meta{font-size:10px;color:var(--ink-ghost);}
+.obs-empty{text-align:center;padding:30px 0;font-size:13px;color:var(--ink-soft);font-style:italic;}
 </style>
 </head>
 <body>
@@ -105,6 +127,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
   <button class="ntab on" onclick="tab('coverage',this)">Coverage</button>
   <button class="ntab" onclick="tab('byweek',this)">By week</button>
   <button class="ntab" onclick="tab('report',this)">Report</button>
+  <button class="ntab" onclick="tab('log',this)">Log</button>
 </nav>
 <div class="main">
   <div class="view on" id="view-coverage">
@@ -140,6 +163,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
   <div class="view" id="view-report">
     <div id="rContent"></div>
   </div>
+  <div class="view" id="view-log">
+    <div id="obsForm"></div>
+    <div id="obsList"></div>
+  </div>
 </div>
 <div id="toast"></div>
 
@@ -151,7 +178,12 @@ const F={strand:'NZC Strand',level:'NZC Level/ Phase',week:'Week',li:'Learning I
 const COLS={'Number & Algebra':'#B8600A','Writing \u2013 Informative':'#1D9E75','Writing \u2013 Persuasive':'#0F6E56','Writing \u2013 Reflective':'#085041','Reading':'#1A7BC4','Reading \u2013 Phonics & Decoding':'#0C4A7A','Learning Languages \u2013 Te Reo M\u0101ori':'#5A3A8A','Social Sciences \u2013 Place & Environment':'#C0392B','Science \u2013 Living World':'#3A7A2A','Health Education':'#8A1A1A','Physical Education':'#A0204A','The Arts \u2013 Music':'#5A5A5A','The Arts \u2013 Visual Arts':'#3A3A3A','Technology \u2013 Design, Make & Innovate':'#0C2340'};
 const LC={'Level 1':'tg1','Level 1\u20132':'tg12','Level 2':'tg2','Level 2\u20133':'tg23'};
 const WKS=['Week 1','Week 2','Week 3','Week 4','Week 5','Week 6'];
+const QTBL='tblvm44rpNbzjZRnR';
+const ATBL='tblOLYId9aXtZXxgJ';
+const SUBJECTS=['📘 Reading','✍ Writing','🔢 Maths','🌿 Inquiry','🗣 Te Reo Māori','🎨 Arts','🏃 Hauora','🔬 Science','💻 Technology'];
+const PRIORITIES=['🟢 No follow-up','🟡 Monitor','🔴 Immediate follow-up'];
 let recs=[],filt='all',ylFilt='all',selWk='Week 1',saving=new Set();
+let obsLoaded=false,submitting=false;
 
 function setSt(s){
   const d=document.getElementById('sDot'),t=document.getElementById('sTxt');
@@ -332,7 +364,161 @@ function tab(id,btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
   document.getElementById('view-'+id)?.classList.add('on');btn.classList.add('on');
-  if(id==='byweek')renderWk();if(id==='report')renderRep();
+  if(id==='byweek')renderWk();
+  if(id==='report')renderRep();
+  if(id==='log'&&!obsLoaded){obsLoaded=true;initObsForm();loadStudents();loadRecentObs();}
+}
+
+function initObsForm(){
+  const teacher=localStorage.getItem('te-rito-teacher')||'';
+  const subjOpts=SUBJECTS.map(s=>`<option value="${s}"></option>`).join('');
+  const priOpts=['',... PRIORITIES].map(p=>`<option value="${p}">${p||'— select —'}</option>`).join('');
+  document.getElementById('obsForm').innerHTML=`
+  <div class="form-card">
+    <div class="form-card-title">Quick Observation</div>
+    <datalist id="studentList"></datalist>
+    <div class="frow">
+      <label class="flabel" for="obsStudent">Student name *</label>
+      <input id="obsStudent" class="fi" type="text" list="studentList" placeholder="Start typing…" autocomplete="off">
+    </div>
+    <div class="frow">
+      <label class="flabel" for="obsSubject">Subject area</label>
+      <select id="obsSubject" class="fi">
+        <option value="">— select —</option>
+        ${SUBJECTS.map(s=>`<option value="${s}">${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="frow">
+      <label class="flabel" for="obsNoticed">What I noticed *</label>
+      <textarea id="obsNoticed" class="fi" placeholder="1–2 sentences. What did you observe?"></textarea>
+    </div>
+    <div class="frow">
+      <label class="flabel" for="obsNext">Next teaching step</label>
+      <textarea id="obsNext" class="fi" placeholder="What will you do next?"></textarea>
+    </div>
+    <div class="frow">
+      <label class="flabel" for="obsPriority">Priority follow-up</label>
+      <select id="obsPriority" class="fi">
+        ${priOpts}
+      </select>
+    </div>
+    <div class="frow">
+      <label class="flabel" for="obsTeacher">Teacher / Reliever</label>
+      <input id="obsTeacher" class="fi" type="text" placeholder="Your name" value="${teacher.replace(/"/g,'&quot;')}">
+    </div>
+    <button class="sbtn" id="obsBtn" onclick="submitObs()">Save observation</button>
+  </div>`;
+}
+
+async function loadStudents(){
+  try{
+    let all=[],off=null;
+    do{
+      let url=`https://api.airtable.com/v0/${BASE}/${ATBL}?fields%5B%5D=Student&fields%5B%5D=Display+Name&pageSize=100`;
+      if(off)url+=`&offset=${encodeURIComponent(off)}`;
+      const r=await fetch(url,{headers:{Authorization:'Bearer '+TOK}});
+      if(!r.ok)return;
+      const d=await r.json();
+      all=all.concat(d.records||[]);
+      off=d.offset||null;
+    }while(off);
+    const dl=document.getElementById('studentList');
+    if(!dl)return;
+    dl.innerHTML=all.map(r=>{
+      const name=(r.fields['Display Name']||r.fields['Student']||'').trim();
+      return name?`<option value="${name.replace(/"/g,'&quot;')}">`:''}).join('');
+  }catch(e){}
+}
+
+async function loadRecentObs(){
+  const list=document.getElementById('obsList');
+  if(!list)return;
+  list.innerHTML='<div class="obs-section-title">Recent observations</div><div class="lwrap" style="padding:20px 0"><div class="spin"></div></div>';
+  try{
+    const url=`https://api.airtable.com/v0/${BASE}/${QTBL}?sort%5B0%5D%5Bfield%5D=Created&sort%5B0%5D%5Bdirection%5D=desc&pageSize=10`;
+    const r=await fetch(url,{headers:{Authorization:'Bearer '+TOK}});
+    if(!r.ok)throw new Error();
+    const d=await r.json();
+    renderRecentObs(d.records||[]);
+  }catch(e){
+    list.innerHTML='<div class="obs-section-title">Recent observations</div><div class="obs-empty">Could not load recent entries.</div>';
+  }
+}
+
+function priClass(p){
+  if(!p)return'';
+  if(p.includes('No follow'))return'green';
+  if(p.includes('Monitor'))return'yellow';
+  if(p.includes('Immediate'))return'red';
+  return'';
+}
+
+function renderRecentObs(obs){
+  const list=document.getElementById('obsList');
+  if(!list)return;
+  if(!obs.length){list.innerHTML='<div class="obs-section-title">Recent observations</div><div class="obs-empty">No observations yet — be the first!</div>';return;}
+  const items=obs.map(r=>{
+    const f=r.fields||{};
+    const student=f['Student Name']||'—';
+    const subj=f['Subject Area']||'';
+    const noticed=(f['Observation']||'').split('\n')[0].slice(0,120);
+    const nxt=(f['Next Step']||'').split('\n')[0].slice(0,100);
+    const pri=f['Priority Follow-Up']||'';
+    const who=f['Teacher / Reliever']?`· ${f['Teacher / Reliever']}`:'';
+    const when=f['Created']?new Date(f['Created']).toLocaleDateString('en-NZ',{day:'numeric',month:'short'}):'';
+    const pc=priClass(pri);
+    return`<div class="obs-item">
+      <div class="obs-head">
+        <span class="obs-sname">${student}</span>
+        ${subj?`<span class="obs-subj">${subj}</span>`:''}
+        ${pri?`<span class="obs-pri ${pc}">${pri}</span>`:''}
+      </div>
+      ${noticed?`<div class="obs-txt">${noticed}</div>`:''}
+      ${nxt?`<div class="obs-nxt">↳ ${nxt}</div>`:''}
+      <div class="obs-meta">${when}${who}</div>
+    </div>`;
+  }).join('');
+  list.innerHTML=`<div class="obs-section-title">Recent observations</div>${items}`;
+}
+
+async function submitObs(){
+  if(submitting)return;
+  const student=(document.getElementById('obsStudent')?.value||'').trim();
+  const noticed=(document.getElementById('obsNoticed')?.value||'').trim();
+  if(!student){toast('⚠️ Student name is required');return;}
+  if(!noticed){toast('⚠️ Please add what you noticed');return;}
+  const subj=document.getElementById('obsSubject')?.value||'';
+  const nxt=document.getElementById('obsNext')?.value||'';
+  const pri=document.getElementById('obsPriority')?.value||'';
+  const teacher=(document.getElementById('obsTeacher')?.value||'').trim();
+  if(teacher)localStorage.setItem('te-rito-teacher',teacher);
+  submitting=true;
+  const btn=document.getElementById('obsBtn');
+  if(btn){btn.disabled=true;btn.textContent='Saving…';}
+  try{
+    const fields={'Student Name':student,'Observation':noticed};
+    if(subj)fields['Subject Area']=subj;
+    if(nxt)fields['Next Step']=nxt;
+    if(pri)fields['Priority Follow-Up']=pri;
+    if(teacher)fields['Teacher / Reliever']=teacher;
+    const res=await fetch(`https://api.airtable.com/v0/${BASE}/${QTBL}`,{
+      method:'POST',
+      headers:{Authorization:'Bearer '+TOK,'Content-Type':'application/json'},
+      body:JSON.stringify({fields})
+    });
+    if(!res.ok)throw new Error('Save failed');
+    toast('✅ Observation saved');
+    document.getElementById('obsStudent').value='';
+    document.getElementById('obsSubject').value='';
+    document.getElementById('obsNoticed').value='';
+    document.getElementById('obsNext').value='';
+    document.getElementById('obsPriority').value='';
+    loadRecentObs();
+  }catch(e){toast('⚠️ Could not save — check connection');}
+  finally{
+    submitting=false;
+    if(btn){btn.disabled=false;btn.textContent='Save observation';}
+  }
 }
 function setF(f,btn){filt=f;document.querySelectorAll('#filterBar1 .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderCov();}
 function setYL(yl,btn){ylFilt=yl;document.querySelectorAll('#filterBar2 .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderSum();renderCov();renderWk();renderRep();}
